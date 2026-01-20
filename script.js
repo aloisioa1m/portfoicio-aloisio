@@ -1,5 +1,12 @@
 // Funcionalidades interativas do portfólio
 
+// Função auxiliar para rastrear eventos no Google Analytics
+function trackEvent(eventName, eventParams = {}) {
+    if (typeof gtag !== 'undefined') {
+        gtag('event', eventName, eventParams);
+    }
+}
+
 // Dados dos projetos
 const projectsData = {
     meteorologia: {
@@ -42,6 +49,10 @@ if (menuToggle) {
 document.querySelectorAll('.nav-links a').forEach(link => {
     link.addEventListener('click', () => {
         navLinks.classList.remove('active');
+        // Rastrear clique na navegação
+        trackEvent('nav_click', {
+            'destination': link.getAttribute('href')
+        });
     });
 });
 
@@ -56,12 +67,26 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             e.preventDefault();
             const target = document.querySelector(href);
             if (target) {
+                // Rastrear navegação
+                trackEvent('section_navigation', {
+                    'section': href
+                });
                 target.scrollIntoView({
                     behavior: 'smooth',
                     block: 'start'
                 });
             }
         }
+    });
+});
+
+// Rastrear cliques em botões principais
+document.querySelectorAll('.btn-primary, .btn-secondary, .btn-tertiary').forEach(btn => {
+    btn.addEventListener('click', () => {
+        trackEvent('cta_click', {
+            'button_type': btn.className,
+            'button_text': btn.textContent.trim()
+        });
     });
 });
 
@@ -85,6 +110,11 @@ if (contactForm) {
         });
         
         if (isValid) {
+            // Rastrear envio de formulário
+            trackEvent('form_submission', {
+                'form_type': 'contact_form',
+                'status': 'success'
+            });
             alert('Obrigado pela mensagem! Entraremos em contato em breve.');
             contactForm.reset();
         } else {
